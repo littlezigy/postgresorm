@@ -1,0 +1,20 @@
+{
+  "name": "postgresorm",
+  "version": "2.0.3",
+  "description": "A very basic postgres orm. ",
+  "main": "database.js",
+  "scripts": {
+    "test": "nodemon --exec 'jest --runInBand'"
+  },
+  "keywords": [
+    "orm",
+    "postgresql",
+    "postgres",
+    "database"
+  ],
+  "author": "Adesuwa Dawodu",
+  "license": "ISC",
+  "dependencies": {
+    "pg": "^7.18.2"
+  }
+}
