@@ -27,7 +27,7 @@ To use in model file, import module first <br />
   `'table'`: Name of table from which to list records<br />
 
   `conditions`: Filters records. eg, `_id = 1`, `price < 200`. Can be null<br />
-- paginate(`'table'`, paginateparams, conditions) - Paginates records from a table.  <br />
+- paginate(`'table'`, `paginateparams`, `conditions`) - Paginates records from a table.  <br />
   `'table'`: Table to fetch records from
   `paginateparams`: Contains options for the paginate function <br />
   ```
@@ -44,18 +44,18 @@ To use in model file, import module first <br />
 - onetomanycreate(`'table'`, `columns`, `values`)
 - update(`'table'`, `columns`, `values`, `conditions`)
 - customquery(`querytext`, `parameters`)
-  - `querytext`: SQL query string. Keep your application safe by using parameterized queries. Do this: <br />
+  - `querytext`: SQL query string. 
   - `parameters`: values<br /> <br />
-  > So, do this instead:
+  > Keep your application safe by using parameterized queries. Do this: <br />
   ```
   querytext = `SELECT * from example_table where username = $1;`<br />
-  parameters = ['sampleuser']<br />
+  parameters = ['sampleuser']
   ```
   > And never this:<br />
   ```
   querytext = `SELECT * from example_table where username = 'sampleuser';`
   ```
-- transaction(callback)<br />
+- transaction(`callback`)<br />
   In `callback`, write your SQL queries<br />
 
 
