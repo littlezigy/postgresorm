@@ -136,6 +136,10 @@ module.exports = {
         }
     },
 
+    onetomanycreate: async(table, columns, values) => {
+        one_to_many_create(table, columns, values);
+    },
+
     one_to_many_create: async (table, columns, values) => {
         try {
             let querytext = `INSERT INTO ${table}(${columns[0]}, ${columns[1]}) 
@@ -182,7 +186,7 @@ module.exports = {
         }
     },
 
-    customquery: async(text, params) => {
+    customquery: async(text, params = null) => {
         try{
             let res = await pool.query(text, params);
             return res;
