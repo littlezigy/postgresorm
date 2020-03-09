@@ -26,10 +26,10 @@ To use in model file, import module first <br />
 - list('table', `conditions`) - Lists records in table <br />
   `'table'`: Name of table from which to list records<br />
 
-  `conditions`: Filters records. eg, `_id = 1`, `price < 200`. Can be null<br />
+  `conditions`: _Optional_ Filters records. eg, `_id = 1`, `price < 200`.<br />
 - paginate(`'table'`, `paginateparams`, `conditions`) - Paginates records from a table.  <br />
-  `'table'`: Table to fetch records from
-  `paginateparams`: Contains options for the paginate function <br />
+  - `'table'`: Table to fetch records from
+  - `paginateparams`: Contains options for the paginate function <br />
   ```
   paginateparams = {
       sortby: _ASC_ or _DESC_,
@@ -37,6 +37,7 @@ To use in model file, import module first <br />
       page: current page of pagination. Also an integer
   }
   ```
+  - conditions: _Optional_ Filters records.
 - findone(`'table'`, `conditions`)
   - You know the drill..
 
@@ -45,10 +46,10 @@ To use in model file, import module first <br />
 - update(`'table'`, `columns`, `values`, `conditions`)
 - customquery(`querytext`, `parameters`)
   - `querytext`: SQL query string. 
-  - `parameters`: values<br /> <br />
+  - `parameters`: values. _Optional_<br /> <br />
   > Keep your application safe by using parameterized queries. Do this: <br />
   ```
-  querytext = `SELECT * from example_table where username = $1;`<br />
+  querytext = `SELECT * from example_table where username = $1;`
   parameters = ['sampleuser']
   ```
   > And never this:<br />
