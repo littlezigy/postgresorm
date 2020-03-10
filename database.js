@@ -4,7 +4,6 @@ let pool;
 
 module.exports = {
     initializeDatabase: (config) => {
-        console.log("Config", config, "Connection String", config.connectionString);
         const db = {
             connectionString: config.connectionString,
             max: config.max,
@@ -63,16 +62,13 @@ module.exports = {
         if(paginateparams.limit) querytext += ` LIMIT ${paginateparams.limit}`;
         if(paginateparams.page) querytext += ` OFFSET ${(paginateparams.page-1) * paginateparams.limit}`;
 
-        console.log('querytext===> ', querytext);
         return await pool.query(`${querytext};`, params);
     },
 
     findone: async(table, conditions = null) => {
-        console.log('\nTABLENAME\n---------------\n',table);
         let params = null;
         let querytext = `SELECT * FROM ${table}`;
         if(conditions) {
-            console.log("CONDITIONS THAT WARRANTED THIS", conditions);
             params = [];
             querytext += ` WHERE `;
             let i = 0;
@@ -89,11 +85,9 @@ module.exports = {
     },
 
     findonerandom: async(table, conditions = null) => {
-        console.log('\nTABLENAME\n---------------\n',table);
         let params = null;
         let querytext = `SELECT * FROM ${table}`;
         if(conditions) {
-            console.log("CONDITIONS THAT WARRANTED THIS", conditions);
             params = [];
             querytext += ` WHERE `;
             let i = 0;
@@ -106,12 +100,9 @@ module.exports = {
             }
         }
         if (Array.isArray(params) && params !== null) params = params.filter(x=> (x !== null) && (x!== undefined));
-        console.log("QUERY TEXT\n-----------------\n", `${querytext} LIMIT 1;`);
         if(Array.isArray(params) && params.length > 0) {
-            console.log("santa claus is here");
             return await pool.query(`${querytext} ORDER BY random() LIMIT 1;`, params);
         } else {
-            console.log("His evil brother");
             return  await pool.query(`${querytext} ORDER BY random() LIMIT 1;`);
         }
     },
@@ -127,7 +118,6 @@ module.exports = {
           }
           
           let querytext = `INSERT INTO ${table} (${cols}) VALUES(${values_str}) RETURNING *;`;
-          console.log("Query text", querytext);
           let res = await pool.query(querytext, values);
           return res;
         } catch(err) {
@@ -176,9 +166,7 @@ module.exports = {
                 }
             } else throw Error("No condition specified. Exiting!");
     
-            console.log(querytext);
             let res = await pool.query(`${querytext};`, values);
-            console.log("Res", res);
             return res;
         } catch(err) {
             console.log('ERROR', err);
@@ -191,7 +179,6 @@ module.exports = {
             let res = await pool.query(text, params);
             return res;
         } catch(e) {
-            console.log("EROROROR", e);
             return "Error";
         }
     },
