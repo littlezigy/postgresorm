@@ -2,6 +2,11 @@ const {Pool} = require("pg");
 
 let pool;
 
+const resolverequest = function(data) {
+    let columns = Object.keys(data);
+    let values = Object.values(data);
+    return {columns, values}
+}
 module.exports = {
     initializeDatabase: (config) => {
         const db = {
@@ -107,7 +112,17 @@ module.exports = {
         }
     },
 
-    create: async(table, columns, values) => {
+    create: async(table, data1, data2 = null) => {
+        console.log("values", data2);
+        if(data2 === null) {
+            console.log("blah");
+            console.log(resolverequest(data1));
+
+            const { columns, values } = resolverequest(data1);
+        } else {
+            columns = data1;
+            values = data2;
+        }
         try{
           let cols = columns.join(', ');
     

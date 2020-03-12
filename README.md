@@ -19,10 +19,16 @@ A very basic ORM for PostgreSQL
 ### ORM Commands
 To use in model file, import module first <br />
 `const db = require('postgresorm')`<br />
-- create(`'table'`, `columns`, `values`) - Creates a new record in `table`.<br />
+- create(`'table'`, `data`) - Creates a new record in `table`.<br />
   `'table'`: Name of table to create record in <br />
-  `columns`: An array of table columns corresponding to `values` <br />
-  `values`: An array of values to be inserted into table corresponding to `columns` <br />
+  `data`: Object of table values
+    ```
+    data = {
+        name: 'Meena',
+        piece: 'Rook',
+        level: 20
+    }
+    ```
 - list('table', `conditions`) - Lists records in table <br />
   `'table'`: Name of table from which to list records<br />
 

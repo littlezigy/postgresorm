@@ -13,4 +13,8 @@ describe('Create Record in table', function() {
         db.create('tabletest', ['poo', 'bam'], ['boor', 'peer']);
         expect(query).toHaveBeenCalledWith("INSERT INTO tabletest (poo, bam) VALUES($1, $2) RETURNING *;", ["boor", "peer"]);
     });
+    test('Create record with multiple columns using object notation', function() {
+        db.create('tabletest', {poo: 'boor', bam: 'peer'});
+        expect(query).toHaveBeenCalledWith("INSERT INTO tabletest (poo, bam) VALUES($1, $2) RETURNING *;", ["boor", "peer"]);
+    });
 });
