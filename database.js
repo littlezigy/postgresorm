@@ -113,16 +113,16 @@ module.exports = {
     },
 
     create: async(table, data1, data2 = null) => {
-        console.log("values", data2);
+        console.log("data2", data2)
         if(data2 === null) {
-            console.log("blah");
+            console.log("data1", data1)
             console.log(resolverequest(data1));
-
             const { columns, values } = resolverequest(data1);
         } else {
             columns = data1;
             values = data2;
         }
+
         try{
           let cols = columns.join(', ');
     
