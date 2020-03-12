@@ -9,12 +9,12 @@ describe('Create Record in table', function() {
         db.initializeDatabase({connectionString: "Blah"});
     });
 
-    test('Create record with multiple columns', function() {
-        db.create('tabletest', ['poo', 'bam'], ['boor', 'peer']);
+    test('Create record with multiple columns', async function() {
+        await db.create('tabletest', ['poo', 'bam'], ['boor', 'peer']);
         expect(query).toHaveBeenCalledWith("INSERT INTO tabletest (poo, bam) VALUES($1, $2) RETURNING *;", ["boor", "peer"]);
     });
-    test('Create record with multiple columns using object notation', function() {
-        db.create('tabletest', {poo: 'boor', bam: 'peer'});
+    test('Create record with multiple columns using object notation', async function() {
+        await db.create('tabletest', {poo: 'boor', bam: 'peer'});
         expect(query).toHaveBeenCalledWith("INSERT INTO tabletest (poo, bam) VALUES($1, $2) RETURNING *;", ["boor", "peer"]);
     });
 });
