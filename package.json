@@ -4,7 +4,7 @@
   "description": "A very basic postgres orm. ",
   "main": "database.js",
   "scripts": {
-    "test": "nodemon --exec 'jest --runInBand'"
+    "test": ". ./config.sh && nodemon --exec 'jest --runInBand'"
   },
   "keywords": [
     "orm",
@@ -14,10 +14,9 @@
   ],
   "author": "Adesuwa Dawodu",
   "license": "ISC",
-  "dependencies": {
-    "pg": "^7.18.2"
-  },
+  "dependencies": {},
   "devDependencies": {
-    "jest": "^25.1.0"
+    "jest": "^25.1.0",
+    "pg": "^7.18.2"
   }
 }

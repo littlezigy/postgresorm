@@ -45,6 +45,7 @@ To use in model file, import module first <br />
   ```
   - conditions: _Optional_ Filters records.
 - findone(`'table'`, `conditions`)
+  - conditions = { column1: 'value', column2: 'othervalue'} will search for and record a single record where column1 = `value` and column2 = `othervalue'
   - You know the drill..
 
 - findonerandom(`'table'`, `conditions`)

@@ -73,6 +73,7 @@ module.exports = {
     findone: async(table, conditions = null) => {
         let params = null;
         let querytext = `SELECT * FROM ${table}`;
+        if(typeof conditions !== 'object') throw new Error("Second argument must be an object");
         if(conditions) {
             params = [];
             querytext += ` WHERE `;
@@ -82,11 +83,14 @@ module.exports = {
                 if(i>0) querytext += " AND ";
                 i++;
                 if(!conditions[key] || conditions[key] === null) querytext += key;
-                else querytext += `${key} $${i}`;
+                else querytext += `${key} = $${i}`;
             }
         }
+        console.log("QUERY TEXT FOR FINDONE", querytext);
         if (Array.isArray(params) && params !== null) params = params.filter(x=> (x !== null) && (x!== undefined));
-        return (Array.isArray(params) && params.length > 0) ? await pool.query(`${querytext} LIMIT 1;`, params) : await pool.query(`${querytext} LIMIT 1;`);
+        let res = (Array.isArray(params) && params.length > 0) ? await pool.query(`${querytext} LIMIT 1;`, params) : await pool.query(`${querytext} LIMIT 1;`);
+
+        return res.rows[0];
     },
 
     findonerandom: async(table, conditions = null) => {
@@ -134,7 +138,7 @@ module.exports = {
           
           let querytext = `INSERT INTO ${table} (${cols}) VALUES(${values_str}) RETURNING *;`;
           let res = await pool.query(querytext, values);
-          return res;
+          return res.rows[0];
         } catch(err) {
           console.log('ERROR', err);
           throw Error;
@@ -194,6 +198,7 @@ module.exports = {
             let res = await pool.query(text, params);
             return res;
         } catch(e) {
+            console.log("ERROR\n", e);
             return "Error";
         }
     },
