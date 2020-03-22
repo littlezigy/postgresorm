@@ -88,7 +88,6 @@ module.exports = {
                 else querytext += `${key} = $${i}`;
             }
         }
-        console.log("QUERY TEXT FOR FINDONE", querytext);
         if (Array.isArray(params) && params !== null) params = params.filter(x=> (x !== null) && (x!== undefined));
         let res = (Array.isArray(params) && params.length > 0) ? await pool.query(`${querytext} LIMIT 1;`, params) : await pool.query(`${querytext} LIMIT 1;`);
 
