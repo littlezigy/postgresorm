@@ -68,7 +68,8 @@ module.exports = {
         if(paginateparams.limit) querytext += ` LIMIT ${paginateparams.limit}`;
         if(paginateparams.page) querytext += ` OFFSET ${(paginateparams.page-1) * paginateparams.limit}`;
 
-        return await pool.query(`${querytext};`, params);
+        let res =  await pool.query(`${querytext};`, params);
+        return res.rows;
     },
 
     findone: async(table, conditions = null) => {
@@ -109,12 +110,14 @@ module.exports = {
                 else querytext += `${key} $${i}`;
             }
         }
+        let res;
         if (Array.isArray(params) && params !== null) params = params.filter(x=> (x !== null) && (x!== undefined));
         if(Array.isArray(params) && params.length > 0) {
-            return await pool.query(`${querytext} ORDER BY random() LIMIT 1;`, params);
+            res =  await pool.query(`${querytext} ORDER BY random() LIMIT 1;`, params);
         } else {
-            return  await pool.query(`${querytext} ORDER BY random() LIMIT 1;`);
+            res = await pool.query(`${querytext} ORDER BY random() LIMIT 1;`);
         }
+        return res.rows[0];
     },
 
     create: async(table, data1, data2 = null) => {
@@ -156,7 +159,7 @@ module.exports = {
             SELECT $1 id, x
             FROM    unnest(ARRAY[$2::int[]]) x;`;
             let res = await pool.query(querytext, values);
-            return res;
+            return res.rows;
         } catch(e) {
             console.log("ERROR", e);
             return ('DB ERROR');
@@ -187,7 +190,7 @@ module.exports = {
             } else throw Error("No condition specified. Exiting!");
     
             let res = await pool.query(`${querytext};`, values);
-            return res;
+            return res.rows[0];
         } catch(err) {
             console.log('ERROR', err);
             return "ERROR";
