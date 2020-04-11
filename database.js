@@ -119,7 +119,7 @@ module.exports = {
         return res.rows[0];
     },
 
-    create: async(table, data1, data2 = null) => {
+    create: async(table, data1, data2 = null, cb = null) => {
         let columns;
         let values;
         if(data2 === null) {
@@ -140,7 +140,8 @@ module.exports = {
           }
           
           let querytext = `INSERT INTO ${table} (${cols}) VALUES(${values_str}) RETURNING *;`;
-          let res = await pool.query(querytext, values);
+          
+          let res = (cb) ? await cb.query(querytext, values) : await pool.query(querytext, values);
           return res.rows[0];
         } catch(err) {
           console.log('ERROR', err);
