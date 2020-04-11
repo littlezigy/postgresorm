@@ -76,23 +76,29 @@ module.exports = {
         let params = null;
         let querytext = `SELECT * FROM ${table}`;
         if(typeof conditions !== 'object') throw new Error("Second argument must be an object");
-        if(conditions) {
-            params = [];
-            querytext += ` WHERE `;
-            let i = 0;
-            for (key in conditions) {
-                params[i] = conditions[key];
-                if(i>0) querytext += " AND ";
-                i++;
-                if(!conditions[key] || conditions[key] === null) querytext += key;
-                else querytext += `${key} = $${i}`;
-            }
-        }
-        if (Array.isArray(params) && params !== null) params = params.filter(x=> (x !== null) && (x!== undefined));
-        let res = (Array.isArray(params) && params.length > 0) ? await pool.query(`${querytext} LIMIT 1;`, params) : await pool.query(`${querytext} LIMIT 1;`);
 
-        return res.rows[0];
+        try {
+            if(conditions) {
+                params = [];
+                querytext += ` WHERE `;
+                let i = 0;
+                for (key in conditions) {
+                    params[i] = conditions[key];
+                    if(i>0) querytext += " AND ";
+                    i++;
+                    if(!conditions[key] || conditions[key] === null) querytext += key;
+                    else querytext += `${key} = $${i}`;
+                }
+            }
+            if (Array.isArray(params) && params !== null) params = params.filter(x=> (x !== null) && (x!== undefined));
+            let res = (Array.isArray(params) && params.length > 0) ? await pool.query(`${querytext} LIMIT 1;`, params) : await pool.query(`${querytext} LIMIT 1;`);
+
+            return res.rows[0];
+        } catch(e) {
+            console.debug('QUERY TEXT', querytext);
+        }
     },
+
 
     findonerandom: async(table, conditions = null) => {
         let params = null;
@@ -147,6 +153,7 @@ module.exports = {
 
 
     create: async(table, data1, data2 = null, cb = null) => {
+        let querytext;
         let columns;
         let values;
         if(data2 === null) {
@@ -166,11 +173,12 @@ module.exports = {
             else values_str += `$${i}, `;
           }
           
-          let querytext = `INSERT INTO ${table} (${cols}) VALUES(${values_str}) RETURNING *;`;
+          querytext = `INSERT INTO ${table} (${cols}) VALUES(${values_str}) RETURNING *;`;
           
           let res = (cb) ? await cb.query(querytext, values) : await pool.query(querytext, values);
           return res.rows[0];
         } catch(err) {
+          console.debug('QUERY TEXT', querytext);
           console.log('ERROR', err);
           throw Error;
         }
@@ -194,8 +202,9 @@ module.exports = {
     },
 
     update: async(table, columns, values, conditions) => {
+        let querytext;
         try{
-            let querytext = `UPDATE ${table} SET`
+            querytext = `UPDATE ${table} SET`
     
             for(i=1; i<=columns.length; i++) {
             
@@ -219,6 +228,7 @@ module.exports = {
             let res = await pool.query(`${querytext};`, values);
             return res.rows[0];
         } catch(err) {
+            console.debug('QUERY TEXT', querytext);
             console.log('ERROR', err);
             return "ERROR";
         }
