@@ -9,7 +9,10 @@ beforeAll(async()=> {
         foo varchar(20),
         bar varchar(20)
     );
-    INSERT INTO test(foo, bar) VALUES('findme', 'boo');`
+    INSERT INTO test(foo, bar) VALUES('findme', 'boo');
+
+    INSERT INTO test(foo, bar) VALUES('value1', 'value4'), ('value2', 'value5'), ('value1', 'value6'), ('value3', 'value6'), ('value2', 'value3');
+    `
 
     let blah = await db.customquery(query);
     query = `CREATE TABLE test1(
@@ -18,22 +21,20 @@ beforeAll(async()=> {
         far varchar(20)
     );`
     let blah1 = await db.customquery(query);
-    console.log("BLAH", blah);
-    console.log("BLAH1", blah1);
 });
 
 afterAll(async() => {
-//    await db.customquery('DROP TABLE test;');
-//    await db.customquery('DROP TABLE test1;');
+    await db.customquery('DROP TABLE test;');
+    await db.customquery('DROP TABLE test1;');
 });
 
 describe('Create Record in table', function() {
         test('Create record with multiple columns', async function() {
-        let res = await db.create('test', ['foo', 'bar'], ['boor', 'peer']);
-        expect(res).toHaveProperty("foo", "boor"); });
+            await expect( db.create('test', ['foo', 'bar'], ['boor', 'peer']) ).resolves.toHaveProperty("foo", "boor");
+       });
+
     test('Create record with multiple columns using object notation', async function() {
-        let res = await db.create('test', {foo: 'moor', bar: 'fear'});
-        expect(res).toHaveProperty("foo", "moor");
+         await expect( db.create('test', {foo: 'moor', bar: 'fear'}) ).resolves.toHaveProperty("foo", "moor");
     });
 });
 
@@ -43,6 +44,10 @@ describe('Finding Records', function() {
         expect(res).toHaveProperty('foo', 'findme');
         expect(res).toHaveProperty('bar', 'boo');
     });
+
+    test('Find all', async function() {
+        await expect(db.findall('test', {foo: ['value1', 'value2', 'value3'], bar: ['value4', 'value5', 'value6']})).resolves.not.toHaveLength(0);
+    });
 });
 
 describe('Transactions', function() {
@@ -50,9 +55,10 @@ describe('Transactions', function() {
         results = await db.transaction(async client => {
             let res = await db.create('test', {foo: 'link up', bar: 'fear'}, null, client);
             let res1 = await db.create('test1', {boo: 'transaction', far: 'fear'}, null, client);
-            console.log('RES', res);
-            console.log('RES1', res);
+            // console.log('RES', res);
+            // console.log('RES1', res);
         });
-        console.log('RESULTS', results);
+        await expect(db.findall('test', {foo: ['link up']})).resolves.not.toHaveLength(0);
+        await expect(db.findall('test1', {boo: ['transaction']})).resolves.not.toHaveLength(0);
     });
 });

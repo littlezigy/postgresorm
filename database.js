@@ -119,6 +119,33 @@ module.exports = {
         return res.rows[0];
     },
 
+    /**
+     *  conditions: {param1: ['value1', 'value2', value3],
+                     param2: ['value4', value5, value6]};
+
+     *  querytext = select * from table where param1 in (value1, value2, value3) and params2 in (value4, value5, value6)
+    */
+    findall: async(table, conditions = null) => {
+        let params = null;
+        let querytext = `SELECT * FROM ${table}`;
+        if(typeof conditions !== 'object') throw new Error("Second argument must be an object");
+        if(conditions) {
+            querytext += ` WHERE `;
+            let i = 0;
+            for (key in conditions) {
+                let values = conditions[key].join("', '");
+                if(i>0) querytext += " AND ";
+                i++;
+                querytext +=  ` ${key} in ( '${ values }' )`;
+            }
+        }
+        if (Array.isArray(params) && params !== null) params = params.filter(x=> (x !== null) && (x!== undefined));
+        let res = (Array.isArray(params) && params.length > 0) ? await pool.query(`${querytext} LIMIT 1;`, params) : await pool.query(`${querytext} LIMIT 10;`);
+
+        return res.rows;
+    },
+
+
     create: async(table, data1, data2 = null, cb = null) => {
         let columns;
         let values;
@@ -211,6 +238,7 @@ module.exports = {
         const client = await pool.connect();
         let res = {};
         try {
+            console.debug('Beginning SQL transaction');
             await client.query('BEGIN');
             try {
                 res.data = await callback(client)
