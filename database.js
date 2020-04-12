@@ -215,9 +215,9 @@ module.exports = {
 
     one_to_many_create: async (table, columns, values) => {
         let querytext = `INSERT INTO ${table}(${columns[0]}, ${columns[1]}) 
-        try {
             SELECT $1 id, x
             FROM    unnest(ARRAY[$2::int[]]) x;`;
+        try {
             let res = await pool.query(querytext, values);
             return res.rows;
         } catch(e) {
