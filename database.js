@@ -1,5 +1,6 @@
 const {Pool} = require("pg");
 
+
 let pool;
 
 const resolverequest = function(data) {
@@ -276,6 +277,8 @@ module.exports = {
             let res = await pool.query(text, params);
             return res;
         } catch(e) {
+            console.debug('QUERY TEXT', text);
+            if(params) console.debug('WITH PARAMS', params);
             console.error("ERROR\n", e);
             return "Error";
         }
