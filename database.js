@@ -34,7 +34,6 @@ module.exports = {
                 querytext += ` WHERE `;
                 let i = 0;
                 for (key in conditions) {
-                    console.log('CONDITIONS for', key)
                     params[i] = conditions[key];
                     if(i>0) querytext += " AND ";
                     i++;
@@ -42,14 +41,12 @@ module.exports = {
                     else querytext += `${key} = $${i}`;
                 }
             }
-            console.debug('QUERY TEXT', querytext);
-            console.debug('params', params);
             if (Array.isArray(params) && params !== null) params = params.filter(x=> (x !== null) && (x!== undefined));
             let results = (Array.isArray(params) && params.length > 0) ? await pool.query(`${querytext};`, params) : await pool.query(`${querytext};`);
             return results.rows;
         } catch(err) {
           console.debug('QUERY TEXT', querytext);
-          console.log('ERROR', err);
+          console.error('ERROR', err);
           throw Error;
         }
     },
@@ -82,7 +79,7 @@ module.exports = {
             return res.rows;
         } catch(err) {
           console.debug('QUERY TEXT', querytext);
-          console.log('ERROR', err);
+          console.error('ERROR', err);
           throw Error;
         }
     },
@@ -141,7 +138,7 @@ module.exports = {
             return res.rows[0];
         } catch(err) {
           console.debug('QUERY TEXT', querytext);
-          console.log('ERROR', err);
+          console.error('ERROR', err);
           throw Error;
         }
     },
@@ -174,7 +171,7 @@ module.exports = {
             return res.rows;
         } catch(err) {
           console.debug('QUERY TEXT', querytext);
-          console.log('ERROR', err);
+          console.error('ERROR', err);
           throw Error;
         }
     },
@@ -207,7 +204,7 @@ module.exports = {
           return res.rows[0];
         } catch(err) {
           console.debug('QUERY TEXT', querytext);
-          console.log('ERROR', err);
+          console.error('ERROR', err);
           throw Error;
         }
     },
@@ -224,7 +221,7 @@ module.exports = {
             let res = await pool.query(querytext, values);
             return res.rows;
         } catch(e) {
-            console.log("ERROR", e);
+            console.error("ERROR", e);
             console.debug('QUERY TEXT', querytext);
             return ('DB ERROR');
             throw Error;
@@ -259,7 +256,7 @@ module.exports = {
             return res.rows[0];
         } catch(err) {
             console.debug('QUERY TEXT', querytext);
-            console.log('ERROR', err);
+            console.error('ERROR', err);
             return "ERROR";
         }
     },
@@ -269,7 +266,7 @@ module.exports = {
             let res = await pool.query(text, params);
             return res;
         } catch(e) {
-            console.log("ERROR\n", e);
+            console.error("ERROR\n", e);
             return "Error";
         }
     },
@@ -285,7 +282,7 @@ module.exports = {
                 client.query('COMMIT');
                 res.status=true;
             } catch(e) {
-                console.log(e);
+                console.error(e);
                 res = {status: e.name, detail: e.detail, constraint: e.constraint};
                 client.query('ROLLBACK');
                 throw e;
