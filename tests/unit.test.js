@@ -9,6 +9,10 @@ beforeAll(async()=> {
         foo varchar(20),
         bar varchar(20)
     );
+    CREATE TABLE test_with_id_column(
+        _id serial primary key
+    );
+
     INSERT INTO test(foo, bar) VALUES('findme', 'boo'), ('foop', 'bloop'), ('foop', 'bloop'), ('foop', 'bloop');
 
     INSERT INTO test(foo, bar) VALUES('value1', 'value4'), ('value2', 'value5'), ('value1', 'value6'), ('value3', 'value6'), ('value2', 'value3');
@@ -24,11 +28,13 @@ beforeAll(async()=> {
 });
 
 afterAll(async() => {
-    await db.customquery('DROP TABLE test;');
-    await db.customquery('DROP TABLE test1;');
+    await db.customquery('DROP TABLE test, test1, test_with_id_column;');
 });
 
 describe('Create Record in table', function() {
+        test('Create record with no values', async function() {
+            await expect( db.create('test_with_id_column') ).resolves.toHaveProperty('_id');
+        });
         test('Create record with multiple columns', async function() {
             await expect( db.create('test', ['foo', 'bar'], ['boor', 'peer']) ).resolves.toHaveProperty("foo", "boor");
        });

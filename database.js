@@ -177,11 +177,21 @@ module.exports = {
     },
 
 
-    create: async(table, data1, data2 = null, cb = null) => {
+    create: async(table, data1 = null, data2 = null, cb = null) => {
         let querytext;
         let columns;
         let values;
-        if(data2 === null) {
+        if(data1 === null) {
+            querytext = `INSERT INTO ${table} DEFAULT VALUES RETURNING *`;
+            try {
+                let res = (cb) ? await cb.query(querytext, values) : await pool.query(querytext, values);
+                return res.rows[0];
+            } catch(err) {
+                console.debug('QUERY TEXT', querytext);
+                console.error('ERROR', err);
+                throw Error;
+            }
+        } else if(data2 === null) {
             columns = resolverequest(data1).columns;
             values = resolverequest(data1).values;
         } else {
