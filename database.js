@@ -28,21 +28,27 @@ module.exports = {
     list: async(table, conditions = null) => {
         let params = null;
         let querytext = `SELECT * FROM ${table}`;
-        if(conditions) {
-            params = [];
-            querytext += ` WHERE `;
-            let i = 0;
-            for (key in conditions) {
-                params[i] = conditions[key];
-                if(i>0) querytext += " AND ";
-                i++;
-                if(!conditions[key] || conditions[key] === null) querytext += key;
-                else querytext += `${key} $${i}`;
+        try {
+            if(conditions) {
+                params = [];
+                querytext += ` WHERE `;
+                let i = 0;
+                for (key in conditions) {
+                    params[i] = conditions[key];
+                    if(i>0) querytext += " AND ";
+                    i++;
+                    if(!conditions[key] || conditions[key] === null) querytext += key;
+                    else querytext += `${key} $${i}`;
+                }
             }
+            if (Array.isArray(params) && params !== null) params = params.filter(x=> (x !== null) && (x!== undefined));
+            let results = (Array.isArray(params) && params.length > 0) ? await pool.query(`${querytext};`, params) : await pool.query(`${querytext};`);
+            return results.rows;
+        } catch(err) {
+          console.debug('QUERY TEXT', querytext);
+          console.log('ERROR', err);
+          throw Error;
         }
-        if (Array.isArray(params) && params !== null) params = params.filter(x=> (x !== null) && (x!== undefined));
-        let results = (Array.isArray(params) && params.length > 0) ? await pool.query(`${querytext};`, params) : await pool.query(`${querytext};`);
-        return results.rows;
     },
 
     /**
@@ -51,25 +57,31 @@ module.exports = {
     paginate: async(table, paginateparams, conditions = null) => {
         let params = null;
         let querytext = `SELECT * FROM ${table}`;
-        if(conditions) {
-            params = [];
-            querytext += ` WHERE `;
-            let i = 0;
-            for (key in conditions) {
-                params[i] = conditions[key];
-                if(i>0) querytext += " AND ";
-                i++;
-                
-                querytext += `${key} $${i}`;
+        try {
+            if(conditions) {
+                params = [];
+                querytext += ` WHERE `;
+                let i = 0;
+                for (key in conditions) {
+                    params[i] = conditions[key];
+                    if(i>0) querytext += " AND ";
+                    i++;
+                    
+                    querytext += `${key} $${i}`;
+                }
             }
-        }
-        if(paginateparams.sortby) querytext += ` ORDER BY ${paginateparams.sortby}`;
-        if(paginateparams.sorttype) querytext += ` ${paginateparams.sorttype}`;
-        if(paginateparams.limit) querytext += ` LIMIT ${paginateparams.limit}`;
-        if(paginateparams.page) querytext += ` OFFSET ${(paginateparams.page-1) * paginateparams.limit}`;
+            if(paginateparams.sortby) querytext += ` ORDER BY ${paginateparams.sortby}`;
+            if(paginateparams.sorttype) querytext += ` ${paginateparams.sorttype}`;
+            if(paginateparams.limit) querytext += ` LIMIT ${paginateparams.limit}`;
+            if(paginateparams.page) querytext += ` OFFSET ${(paginateparams.page-1) * paginateparams.limit}`;
 
-        let res =  await pool.query(`${querytext};`, params);
-        return res.rows;
+            let res =  await pool.query(`${querytext};`, params);
+            return res.rows;
+        } catch(err) {
+          console.debug('QUERY TEXT', querytext);
+          console.log('ERROR', err);
+          throw Error;
+        }
     },
 
     findone: async(table, conditions = null) => {
@@ -103,26 +115,32 @@ module.exports = {
     findonerandom: async(table, conditions = null) => {
         let params = null;
         let querytext = `SELECT * FROM ${table}`;
-        if(conditions) {
-            params = [];
-            querytext += ` WHERE `;
-            let i = 0;
-            for (key in conditions) {
-                params[i] = conditions[key];
-                if(i>0) querytext += " AND ";
-                i++;
-                if(!conditions[key] || conditions[key] === null) querytext += key;
-                else querytext += `${key} $${i}`;
+        try {
+            if(conditions) {
+                params = [];
+                querytext += ` WHERE `;
+                let i = 0;
+                for (key in conditions) {
+                    params[i] = conditions[key];
+                    if(i>0) querytext += " AND ";
+                    i++;
+                    if(!conditions[key] || conditions[key] === null) querytext += key;
+                    else querytext += `${key} $${i}`;
+                }
             }
+            let res;
+            if (Array.isArray(params) && params !== null) params = params.filter(x=> (x !== null) && (x!== undefined));
+            if(Array.isArray(params) && params.length > 0) {
+                res =  await pool.query(`${querytext} ORDER BY random() LIMIT 1;`, params);
+            } else {
+                res = await pool.query(`${querytext} ORDER BY random() LIMIT 1;`);
+            }
+            return res.rows[0];
+        } catch(err) {
+          console.debug('QUERY TEXT', querytext);
+          console.log('ERROR', err);
+          throw Error;
         }
-        let res;
-        if (Array.isArray(params) && params !== null) params = params.filter(x=> (x !== null) && (x!== undefined));
-        if(Array.isArray(params) && params.length > 0) {
-            res =  await pool.query(`${querytext} ORDER BY random() LIMIT 1;`, params);
-        } else {
-            res = await pool.query(`${querytext} ORDER BY random() LIMIT 1;`);
-        }
-        return res.rows[0];
     },
 
     /**
@@ -135,20 +153,27 @@ module.exports = {
         let params = null;
         let querytext = `SELECT * FROM ${table}`;
         if(typeof conditions !== 'object') throw new Error("Second argument must be an object");
-        if(conditions) {
-            querytext += ` WHERE `;
-            let i = 0;
-            for (key in conditions) {
-                let values = conditions[key].join("', '");
-                if(i>0) querytext += " AND ";
-                i++;
-                querytext +=  ` ${key} in ( '${ values }' )`;
-            }
-        }
-        if (Array.isArray(params) && params !== null) params = params.filter(x=> (x !== null) && (x!== undefined));
-        let res = (Array.isArray(params) && params.length > 0) ? await pool.query(`${querytext} LIMIT 1;`, params) : await pool.query(`${querytext} LIMIT 10;`);
 
-        return res.rows;
+        try {
+            if(conditions) {
+                querytext += ` WHERE `;
+                let i = 0;
+                for (key in conditions) {
+                    let values = conditions[key].join("', '");
+                    if(i>0) querytext += " AND ";
+                    i++;
+                    querytext +=  ` ${key} in ( '${ values }' )`;
+                }
+            }
+            if (Array.isArray(params) && params !== null) params = params.filter(x=> (x !== null) && (x!== undefined));
+            let res = (Array.isArray(params) && params.length > 0) ? await pool.query(`${querytext} LIMIT 1;`, params) : await pool.query(`${querytext} LIMIT 10;`);
+
+            return res.rows;
+        } catch(err) {
+          console.debug('QUERY TEXT', querytext);
+          console.log('ERROR', err);
+          throw Error;
+        }
     },
 
 
@@ -189,15 +214,17 @@ module.exports = {
     },
 
     one_to_many_create: async (table, columns, values) => {
+        let querytext = `INSERT INTO ${table}(${columns[0]}, ${columns[1]}) 
         try {
-            let querytext = `INSERT INTO ${table}(${columns[0]}, ${columns[1]}) 
             SELECT $1 id, x
             FROM    unnest(ARRAY[$2::int[]]) x;`;
             let res = await pool.query(querytext, values);
             return res.rows;
         } catch(e) {
             console.log("ERROR", e);
+            console.debug('QUERY TEXT', querytext);
             return ('DB ERROR');
+            throw Error;
         }
     },
 
