@@ -9,7 +9,7 @@ beforeAll(async()=> {
         foo varchar(20),
         bar varchar(20)
     );
-    INSERT INTO test(foo, bar) VALUES('findme', 'boo');
+    INSERT INTO test(foo, bar) VALUES('findme', 'boo'), ('foop', 'bloop'), ('foop', 'bloop'), ('foop', 'bloop');
 
     INSERT INTO test(foo, bar) VALUES('value1', 'value4'), ('value2', 'value5'), ('value1', 'value6'), ('value3', 'value6'), ('value2', 'value3');
     `
@@ -43,6 +43,22 @@ describe('Finding Records', function() {
         let res = await db.findone ('test', {foo: 'findme'});
         expect(res).toHaveProperty('foo', 'findme');
         expect(res).toHaveProperty('bar', 'boo');
+    });
+    describe('List', function() {
+        test('List with no conditions', async function() {
+            await expect(db.list('test')).resolves.toEqual(
+                expect.arrayContaining([
+                    expect.objectContaining({ foo: 'foop', bar: 'bloop'})
+                ])
+            );
+        });
+        test('List with two conditions', async function() {
+            await expect(db.list('test', {foo: 'foop', bar: 'bloop'})).resolves.toEqual(
+                expect.arrayContaining([
+                    expect.objectContaining({ foo: 'foop', bar: 'bloop'})
+                ])
+            );
+        });
     });
 
     test('Find all', async function() {

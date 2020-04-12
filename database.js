@@ -34,13 +34,16 @@ module.exports = {
                 querytext += ` WHERE `;
                 let i = 0;
                 for (key in conditions) {
+                    console.log('CONDITIONS for', key)
                     params[i] = conditions[key];
                     if(i>0) querytext += " AND ";
                     i++;
                     if(!conditions[key] || conditions[key] === null) querytext += key;
-                    else querytext += `${key} $${i}`;
+                    else querytext += `${key} = $${i}`;
                 }
             }
+            console.debug('QUERY TEXT', querytext);
+            console.debug('params', params);
             if (Array.isArray(params) && params !== null) params = params.filter(x=> (x !== null) && (x!== undefined));
             let results = (Array.isArray(params) && params.length > 0) ? await pool.query(`${querytext};`, params) : await pool.query(`${querytext};`);
             return results.rows;
