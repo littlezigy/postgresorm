@@ -14,6 +14,11 @@
   ],
   "author": "Adesuwa Dawodu",
   "license": "ISC",
+  "homepage": "https://github.com/littlezigy/postgresorm#README.md",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/littlezigy/postgresorm.git"
+  },
   "dependencies": {},
   "devDependencies": {
     "jest": "^25.1.0",
