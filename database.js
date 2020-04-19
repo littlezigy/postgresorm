@@ -247,13 +247,14 @@ module.exports = {
 
           if(todebug === true) {
               console.debug("Querytext", querytext);
-              if(params) console.debug('With Params', params);
+              if(values) console.debug('With Params', values);
           }
 
           let res = (cb) ? await cb.query(querytext, values) : await pool.query(querytext, values);
           return res.rows[0];
         } catch(err) {
           console.debug('QUERY TEXT', querytext);
+          console.debug('With Params', params);
           console.error('ERROR', err);
           throw Error;
         }
