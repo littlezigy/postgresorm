@@ -1,7 +1,9 @@
 const {Pool} = require("pg");
 
 
+
 let pool;
+let debug = false;
 
 const resolverequest = function(data) {
     let columns = Object.keys(data);
@@ -18,6 +20,9 @@ module.exports = {
         }
 
         pool = new Pool(db);
+    },
+    debug: (debugStatements = true) => {
+        debug = debugStatements;
     },
     close: () => {
         return pool.end();
@@ -42,6 +47,8 @@ module.exports = {
                     else querytext += `${key} = $${i}`;
                 }
             }
+
+            if(debug === true) console.debug("Querytext", querytext);
             if (Array.isArray(params) && params !== null) params = params.filter(x=> (x !== null) && (x!== undefined));
             let results = (Array.isArray(params) && params.length > 0) ? await pool.query(`${querytext};`, params) : await pool.query(`${querytext};`);
             return results.rows;
@@ -76,6 +83,8 @@ module.exports = {
             if(paginateparams.limit) querytext += ` LIMIT ${paginateparams.limit}`;
             if(paginateparams.page) querytext += ` OFFSET ${(paginateparams.page-1) * paginateparams.limit}`;
 
+            if(debug === true) console.debug("Querytext", querytext);
+
             let res =  await pool.query(`${querytext};`, params);
             return res.rows;
         } catch(err) {
@@ -103,9 +112,12 @@ module.exports = {
                     else querytext += `${key} = $${i}`;
                 }
             }
+            if(debug === true) console.debug("Querytext", querytext);
+
             if (Array.isArray(params) && params !== null) params = params.filter(x=> (x !== null) && (x!== undefined));
             let res = (Array.isArray(params) && params.length > 0) ? await pool.query(`${querytext} LIMIT 1;`, params) : await pool.query(`${querytext} LIMIT 1;`);
 
+            if(res.rows.length < 1) return false;
             return res.rows[0];
         } catch(e) {
             console.debug('QUERY TEXT', querytext);
@@ -129,6 +141,8 @@ module.exports = {
                     else querytext += `${key} $${i}`;
                 }
             }
+            if(debug === true) console.debug("Querytext", querytext);
+
             let res;
             if (Array.isArray(params) && params !== null) params = params.filter(x=> (x !== null) && (x!== undefined));
             if(Array.isArray(params) && params.length > 0) {
@@ -166,6 +180,9 @@ module.exports = {
                     querytext +=  ` ${key} in ( '${ values }' )`;
                 }
             }
+
+            if(debug === true) console.debug("Querytext", querytext);
+
             if (Array.isArray(params) && params !== null) params = params.filter(x=> (x !== null) && (x!== undefined));
             let res = (Array.isArray(params) && params.length > 0) ? await pool.query(`${querytext} LIMIT 1;`, params) : await pool.query(`${querytext} LIMIT 10;`);
 
@@ -210,7 +227,9 @@ module.exports = {
           }
           
           querytext = `INSERT INTO ${table} (${cols}) VALUES(${values_str}) RETURNING *;`;
-          
+
+            if(debug === true) console.debug("Querytext", querytext);
+
           let res = (cb) ? await cb.query(querytext, values) : await pool.query(querytext, values);
           return res.rows[0];
         } catch(err) {
@@ -230,6 +249,9 @@ module.exports = {
             FROM    unnest(ARRAY[$2::int[]]) x;`;
         try {
             let res = await pool.query(querytext, values);
+
+            if(debug === true) console.debug("Querytext", querytext);
+
             return res.rows;
         } catch(e) {
             console.error("ERROR", e);
@@ -263,6 +285,8 @@ module.exports = {
                 }
             } else throw Error("No condition specified. Exiting!");
     
+            if(debug === true) console.debug("Querytext", querytext);
+
             let res = await pool.query(`${querytext};`, values);
             return res.rows[0];
         } catch(err) {

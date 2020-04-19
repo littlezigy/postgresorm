@@ -59,6 +59,7 @@ describe('Finding Records', function() {
             );
         });
         test('List with two conditions', async function() {
+            db.debug();
             await expect(db.list('test', {foo: 'foop', bar: 'bloop'})).resolves.toEqual(
                 expect.arrayContaining([
                     expect.objectContaining({ foo: 'foop', bar: 'bloop'})
@@ -68,6 +69,7 @@ describe('Finding Records', function() {
     });
 
     test('Find all', async function() {
+        db.debug(false);
         await expect(db.findall('test', {foo: ['value1', 'value2', 'value3'], bar: ['value4', 'value5', 'value6']})).resolves.not.toHaveLength(0);
     });
 });
