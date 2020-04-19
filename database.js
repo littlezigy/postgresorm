@@ -48,7 +48,10 @@ module.exports = {
                 }
             }
 
-            if(todebug === true) console.debug("Querytext", querytext);
+            if(todebug === true) {
+                console.debug("Querytext", querytext);
+                if(params) console.debug('With Params', params);
+            }
             if (Array.isArray(params) && params !== null) params = params.filter(x=> (x !== null) && (x!== undefined));
             let results = (Array.isArray(params) && params.length > 0) ? await pool.query(`${querytext};`, params) : await pool.query(`${querytext};`);
             return results.rows;
@@ -83,7 +86,10 @@ module.exports = {
             if(paginateparams.limit) querytext += ` LIMIT ${paginateparams.limit}`;
             if(paginateparams.page) querytext += ` OFFSET ${(paginateparams.page-1) * paginateparams.limit}`;
 
-            if(todebug === true) console.debug("Querytext", querytext);
+            if(todebug === true) {
+                console.debug("Querytext", querytext);
+                if(params) console.debug('With Params', params);
+            }
 
             let res =  await pool.query(`${querytext};`, params);
             return res.rows;
@@ -112,7 +118,11 @@ module.exports = {
                     else querytext += `${key} = $${i}`;
                 }
             }
-            if(todebug === true) console.debug("Querytext", querytext);
+
+            if(todebug === true) {
+                console.debug("Querytext", querytext);
+                if(params) console.debug('With Params', params);
+            }
 
             if (Array.isArray(params) && params !== null) params = params.filter(x=> (x !== null) && (x!== undefined));
             let res = (Array.isArray(params) && params.length > 0) ? await pool.query(`${querytext} LIMIT 1;`, params) : await pool.query(`${querytext} LIMIT 1;`);
@@ -141,7 +151,11 @@ module.exports = {
                     else querytext += `${key} $${i}`;
                 }
             }
-            if(todebug === true) console.debug("Querytext", querytext);
+            if(todebug === true) {
+                console.debug("Querytext", querytext);
+                if(params) console.debug('With Params', params);
+            }
+
 
             let res;
             if (Array.isArray(params) && params !== null) params = params.filter(x=> (x !== null) && (x!== undefined));
@@ -181,7 +195,10 @@ module.exports = {
                 }
             }
 
-            if(todebug === true) console.debug("Querytext", querytext);
+            if(todebug === true) {
+                console.debug("Querytext", querytext);
+                if(params) console.debug('With Params', params);
+            }
 
             if (Array.isArray(params) && params !== null) params = params.filter(x=> (x !== null) && (x!== undefined));
             let res = (Array.isArray(params) && params.length > 0) ? await pool.query(`${querytext} LIMIT 1;`, params) : await pool.query(`${querytext} LIMIT 10;`);
@@ -228,7 +245,10 @@ module.exports = {
           
           querytext = `INSERT INTO ${table} (${cols}) VALUES(${values_str}) RETURNING *;`;
 
-            if(todebug === true) console.debug("Querytext", querytext);
+          if(todebug === true) {
+              console.debug("Querytext", querytext);
+              if(params) console.debug('With Params', params);
+          }
 
           let res = (cb) ? await cb.query(querytext, values) : await pool.query(querytext, values);
           return res.rows[0];
@@ -250,7 +270,10 @@ module.exports = {
         try {
             let res = await pool.query(querytext, values);
 
-            if(todebug === true) console.debug("Querytext", querytext);
+            if(todebug === true) {
+                console.debug("Querytext", querytext);
+                if(params) console.debug('With Params', params);
+            }
 
             return res.rows;
         } catch(e) {
@@ -285,7 +308,10 @@ module.exports = {
                 }
             } else throw Error("No condition specified. Exiting!");
     
-            if(todebug === true) console.debug("Querytext", querytext);
+            if(todebug === true) {
+                console.debug("Querytext", querytext);
+                if(params) console.debug('With Params', params);
+            }
 
             let res = await pool.query(`${querytext};`, values);
             return res.rows[0];
