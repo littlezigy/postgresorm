@@ -348,7 +348,7 @@ module.exports = {
         const client = await pool.connect();
         let res;
         try {
-            console.debug('Beginning SQL transaction');
+            if(todebug === true) console.debug('Beginning SQL transaction');
             await client.query('BEGIN');
             try {
                 res = await callback(client)
@@ -360,7 +360,7 @@ module.exports = {
                 throw e;
             }
         } finally {
-            console.log("CLOSING CONNECTON");
+            if(todebug === true) console.log("CLOSING CONNECTON");
             client.release();
         }
         return res;

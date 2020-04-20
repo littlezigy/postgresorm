@@ -121,8 +121,6 @@ describe('Transactions', function() {
         results = await db.transaction(async client => {
             let res = await db.create('test', {foo: 'link up', bar: 'fear'}, null, client);
             let res1 = await db.create('test1', {boo: 'transaction', far: 'fear'}, null, client);
-            // console.log('RES', res);
-            // console.log('RES1', res);
         });
         await expect(db.findall('test', {foo: ['link up']})).resolves.not.toHaveLength(0);
         await expect(db.findall('test1', {boo: ['transaction']})).resolves.not.toHaveLength(0);
