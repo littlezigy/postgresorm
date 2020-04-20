@@ -7,13 +7,17 @@ beforeAll(async()=> {
     let query = `CREATE TABLE test(
         _id serial primary key,
         foo varchar(20),
-        bar varchar(20)
+        bar varchar(20),
+        bum varchar(20)
     );
     CREATE TABLE test_with_id_column(
         _id serial primary key
     );
 
     INSERT INTO test(foo, bar) VALUES('findme', 'boo'), ('foop', 'bloop'), ('foop', 'bloop'), ('foop', 'bloop');
+
+    INSERT INTO test(foo, bar) VALUES('test update', 'boo'), ('test update', 'bloop'), ('test update 2', 'bloop'), ('test update 3', 'bloop');
+    INSERT INTO test(foo, bar, bum) VALUES('test update 2', 'bloop', 'gram'), ('test update 3', 'bloop', 'book');
 
     INSERT INTO test(foo, bar) VALUES('value1', 'value4'), ('value2', 'value5'), ('value1', 'value6'), ('value3', 'value6'), ('value2', 'value3');
     `
@@ -41,6 +45,44 @@ describe('Create Record in table', function() {
 
     test('Create record with multiple columns using object notation', async function() {
          await expect( db.create('test', {foo: 'moor', bar: 'fear'}) ).resolves.toHaveProperty("foo", "moor");
+    });
+});
+
+describe('Update Records', function() {
+    test('Set one column', async function() {
+        return db.findone('test', {foo: 'test update'})
+        .then(async res => {
+            console.log('RESSSSS', res);
+            await expect(
+                db.update('test', {foo: 'test update'}, {bar: 'Update Worked'})
+            ).resolves.toEqual( expect.arrayContaining([
+                expect.objectContaining({ foo: 'test update', bar: 'Update Worked' })
+            ]));
+            
+            await expect(
+                db.list('test', {foo: 'test update'})
+            ).resolves.toEqual( expect.arrayContaining([
+                expect.objectContaining({ foo: 'test update', bar: 'Update Worked' })
+            ]));
+        });
+    });
+
+    test('Set multiple columns', function() {
+        return db.findone('teet', {foo: 'test update 3'})
+        .then(async res => {
+            console.log('RESSS', res);
+            await expect(
+                db.update('test', {foo: 'test update 3'}, {bar: 'Updating...', bum: 'Fixed'})
+            ).resolves.toEqual( expect.arrayContaining([
+                expect.objectContaining({foo: 'test update 3', bar: 'Updating...', bum: 'Fixed'})
+            ]))
+
+            await expect(
+                db.list('test', {foo: 'test update 3'})
+            ).resolves.toEqual( expect.arrayContaining([
+                expect.objectContaining({foo: 'test update 3', bar: 'Updating...', bum: 'Fixed'})
+            ]))
+        });
     });
 });
 

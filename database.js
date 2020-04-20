@@ -285,27 +285,35 @@ module.exports = {
         }
     },
 
-    update: async(table, columns, values, conditions) => {
+    update: async(table, conditions, newValues) => {
         let querytext;
+        let params = [];
+
         try{
             querytext = `UPDATE ${table} SET`
     
-            for(i=1; i<=columns.length; i++) {
-            
-                if(i>1) querytext += ", ";
-                querytext+= ` ${columns[i]} = $${i}`;
+            let numberOfParameters = 1;
+
+            for(let column in newValues) {
+                
+                if(numberOfParameters > 1) querytext += ", ";
+                querytext+= ` ${column} = $${ numberOfParameters }`;
+
+                params[ numberOfParameters - 1 ] = newValues[column];
+
+                numberOfParameters++;
             }
 
             if(conditions) {
-                params = [];
                 querytext += ` WHERE `;
                 let i = 0;
                 for (key in conditions) {
-                    params[i] = conditions[key];
+                    params[numberOfParameters - 1] = conditions[key];
                     if(i>0) querytext += " AND ";
                     i++;
                     
-                    querytext += `${key} $${i}`;
+                    querytext += `${key} = $${ numberOfParameters }`;
+                    numberOfParameters++;
                 }
             } else throw Error("No condition specified. Exiting!");
     
@@ -314,10 +322,11 @@ module.exports = {
                 if(params) console.debug('With Params', params);
             }
 
-            let res = await pool.query(`${querytext};`, values);
-            return res.rows[0];
+            let res = await pool.query(`${querytext} RETURNING *;`, params);
+            return res.rows;
         } catch(err) {
             console.debug('QUERY TEXT', querytext);
+            console.debug('PARAMS', params);
             console.error('ERROR', err);
             return "ERROR";
         }
@@ -337,14 +346,13 @@ module.exports = {
 
     transaction: async(callback) => {
         const client = await pool.connect();
-        let res = {};
+        let res;
         try {
             console.debug('Beginning SQL transaction');
             await client.query('BEGIN');
             try {
-                res.data = await callback(client)
+                res = await callback(client)
                 client.query('COMMIT');
-                res.status=true;
             } catch(e) {
                 console.error(e);
                 res = {status: e.name, detail: e.detail, constraint: e.constraint};
