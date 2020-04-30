@@ -334,7 +334,13 @@ module.exports = {
 
     customquery: async(text, params = null) => {
         try{
+            if(todebug === true) {
+                console.debug("Querytext", querytext);
+                if(params) console.debug('With Params', params);
+            }
+
             let res = await pool.query(text, params);
+
             return res;
         } catch(e) {
             console.debug('QUERY TEXT', text);
