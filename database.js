@@ -58,7 +58,7 @@ module.exports = {
         } catch(err) {
           console.debug('QUERY TEXT', querytext);
           console.error('ERROR', err);
-          throw Error;
+          throw err;
         }
     },
 
@@ -96,7 +96,7 @@ module.exports = {
         } catch(err) {
           console.debug('QUERY TEXT', querytext);
           console.error('ERROR', err);
-          throw Error;
+          throw err;
         }
     },
 
@@ -131,6 +131,7 @@ module.exports = {
             return res.rows[0];
         } catch(e) {
             console.debug('QUERY TEXT', querytext);
+            throw e;
         }
     },
 
@@ -168,7 +169,7 @@ module.exports = {
         } catch(err) {
           console.debug('QUERY TEXT', querytext);
           console.error('ERROR', err);
-          throw Error;
+          throw err;
         }
     },
 
@@ -207,7 +208,7 @@ module.exports = {
         } catch(err) {
           console.debug('QUERY TEXT', querytext);
           console.error('ERROR', err);
-          throw Error;
+          throw err;
         }
     },
 
@@ -256,7 +257,7 @@ module.exports = {
           console.debug('QUERY TEXT', querytext);
           console.debug('With Params', values);
           console.error('ERROR', err);
-          throw Error;
+          throw err;
         }
     },
 
@@ -281,7 +282,7 @@ module.exports = {
             console.error("ERROR", e);
             console.debug('QUERY TEXT', querytext);
             return ('DB ERROR');
-            throw Error;
+            throw err;
         }
     },
 
@@ -328,7 +329,7 @@ module.exports = {
             console.debug('QUERY TEXT', querytext);
             console.debug('PARAMS', params);
             console.error('ERROR', err);
-            return "ERROR";
+            throw err;
         }
     },
 
@@ -346,7 +347,7 @@ module.exports = {
             console.debug('QUERY TEXT', text);
             if(params) console.debug('WITH PARAMS', params);
             console.error("ERROR\n", e);
-            return "Error";
+            throw err;
         }
     },
 
