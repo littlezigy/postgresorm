@@ -347,7 +347,7 @@ module.exports = {
             console.debug('QUERY TEXT', text);
             if(params) console.debug('WITH PARAMS', params);
             console.error("ERROR\n", e);
-            throw err;
+            throw e;
         }
     },
 
