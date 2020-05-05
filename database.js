@@ -336,7 +336,7 @@ module.exports = {
     customquery: async(text, params = null) => {
         try{
             if(todebug === true) {
-                console.debug("Querytext", querytext);
+                console.debug("Querytext", text);
                 if(params) console.debug('With Params', params);
             }
 
