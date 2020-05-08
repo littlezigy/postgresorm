@@ -78,7 +78,7 @@ module.exports = {
                     if(i>0) querytext += " AND ";
                     i++;
                     
-                    querytext += `${key} $${i}`;
+                    querytext += `${key} = $${i}`;
                 }
             }
             if(paginateparams.sortby) querytext += ` ORDER BY ${paginateparams.sortby}`;
