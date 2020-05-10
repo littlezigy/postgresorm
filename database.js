@@ -57,7 +57,6 @@ module.exports = {
             return results.rows;
         } catch(err) {
           console.debug('QUERY TEXT', querytext);
-          console.error('ERROR', err);
           throw err;
         }
     },
@@ -95,7 +94,6 @@ module.exports = {
             return res.rows;
         } catch(err) {
           console.debug('QUERY TEXT', querytext);
-          console.error('ERROR', err);
           throw err;
         }
     },
@@ -168,7 +166,6 @@ module.exports = {
             return res.rows[0];
         } catch(err) {
           console.debug('QUERY TEXT', querytext);
-          console.error('ERROR', err);
           throw err;
         }
     },
@@ -207,7 +204,6 @@ module.exports = {
             return res.rows;
         } catch(err) {
           console.debug('QUERY TEXT', querytext);
-          console.error('ERROR', err);
           throw err;
         }
     },
@@ -224,7 +220,6 @@ module.exports = {
                 return res.rows[0];
             } catch(err) {
                 console.debug('QUERY TEXT', querytext);
-                console.error('ERROR', err);
                 throw Error;
             }
         } else if(data2 === null) {
@@ -256,7 +251,6 @@ module.exports = {
         } catch(err) {
           console.debug('QUERY TEXT', querytext);
           console.debug('With Params', values);
-          console.error('ERROR', err);
           throw err;
         }
     },
@@ -279,9 +273,7 @@ module.exports = {
 
             return res.rows;
         } catch(e) {
-            console.error("ERROR", e);
             console.debug('QUERY TEXT', querytext);
-            return ('DB ERROR');
             throw err;
         }
     },
@@ -328,7 +320,6 @@ module.exports = {
         } catch(err) {
             console.debug('QUERY TEXT', querytext);
             console.debug('PARAMS', params);
-            console.error('ERROR', err);
             throw err;
         }
     },
@@ -346,7 +337,6 @@ module.exports = {
         } catch(e) {
             console.debug('QUERY TEXT', text);
             if(params) console.debug('WITH PARAMS', params);
-            console.error("ERROR\n", e);
             throw e;
         }
     },
@@ -361,7 +351,7 @@ module.exports = {
                 res = await callback(client)
                 client.query('COMMIT');
             } catch(e) {
-                console.error(e);
+                console.error('TRANSACTION ERROR');
                 res = {status: e.name, detail: e.detail, constraint: e.constraint};
                 client.query('ROLLBACK');
                 throw e;
