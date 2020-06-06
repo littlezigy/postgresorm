@@ -6,17 +6,17 @@ A very basic ORM for PostgreSQL
 ```
 npm i postgresorm
 ```
-## How to use
+## Setup
 - Setup database configuration in configuration file, eg config.js
 `config.js`
 
 ```
-        const configObject = {
-            connectionString: "postgres://username:password@host:port/database",
-            max: config.max,
-            idleTimeoutMillis: config.idleTimeoutMillis,
-            connectionTimeoutMillis: config.connectionTimeoutMillis
-        }
+const configObject = {
+    connectionString: "postgres://username:password@host:port/database",
+    max: config.max,
+    idleTimeoutMillis: config.idleTimeoutMillis,
+    connectionTimeoutMillis: config.connectionTimeoutMillis
+}
 ```
 <hr />
 <br />
