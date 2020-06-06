@@ -19,9 +19,10 @@
     "type": "git",
     "url": "https://github.com/littlezigy/postgresorm.git"
   },
-  "dependencies": {},
+  "dependencies": {
+    "pg": "^8.2.1"
+  },
   "devDependencies": {
-    "jest": "^25.1.0",
-    "pg": "^7.18.2"
+    "jest": "^25.1.0"
   }
 }
