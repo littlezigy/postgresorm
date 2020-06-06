@@ -1,6 +1,6 @@
 {
   "name": "postgresorm",
-  "version": "4.8.1",
+  "version": "4.8.2",
   "description": "A very basic postgres orm. ",
   "main": "database.js",
   "scripts": {
