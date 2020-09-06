@@ -3,9 +3,12 @@ let query = jest.spyOn(Pool.prototype, 'query');
 const db = require('../database');
 
 beforeAll( function() {
+    console.log('EFORE ALL');
     db.initializeDatabase({
         connectionString: `postgresql://${process.env.PGORM_USER}:${process.env.PGORM_PASSWORD}@${process.env.PGORM_HOST}:${process.env.PGORM_PORT}/pgorm_dev_db`
     });
+
+    db.debug(false);
     let query = `
         CREATE TABLE test(
             _id serial primary key,
@@ -27,13 +30,28 @@ beforeAll( function() {
             boo varchar(20),
             far varchar(20)
         );
+        CREATE TABLE orders(
+            _id integer NOT NULL primary key,
+            status varchar(30),
+            email text,
+            subtotal int,
+            start_time timestamp with time zone,
+            end_time timestamp with time zone,
+            vat integer,
+            total integer
+        );
+
     `;
-    return db.customquery('DROP TABLE IF EXISTS test, test_jsonb, test1, test_with_id_column;')
+    return db.customquery('DROP TABLE IF EXISTS test, orders, test_jsonb, test1, test_with_id_column;')
     .then(() => db.customquery(query))
+    .catch(e => {
+        console.log('ERRORRROR', e);
+    });
 });
 
 beforeEach( function() {
     console.log('WIPING TABLE');
+    db.debug(false);
     let query = `
         INSERT INTO test(foo, bar) VALUES('findme', 'boo'), ('foop', 'bloop'), ('foop', 'bloop'), ('foop', 'bloop');
 
@@ -43,7 +61,7 @@ beforeEach( function() {
         INSERT INTO test(foo, bar) VALUES('value1', 'value4'), ('value2', 'value5'), ('value1', 'value6'), ('value3', 'value6'), ('value2', 'value3');
     `;
 
-    return db.customquery('TRUNCATE TABLE test, test_jsonb, test1, test_with_id_column;')
+    return db.customquery('TRUNCATE TABLE test, test_jsonb, orders, test1, test_with_id_column;')
     .then(() => db.customquery(query))
     .catch(e => {
         console.log('ERRORRROR', e);
@@ -66,7 +84,6 @@ describe('Create Record in table', function() {
     });
 
     test('Create multiple records', function() {
-        db.debug(true);
         return expect( db.create('test', [
             {'foo': 'kronk', 'bar': 'reeee'}, {'foo': 'boor', 'bar': 'peer'},
             {'foo': 'bork', 'bar': 'pere'}, {'foo': 'boro', 'bar': 'eper'},
@@ -78,9 +95,20 @@ describe('Create Record in table', function() {
         ]);
     });
 
-    test('Create record with multiple columns using object notation', async function() {
-         await expect( db.create('test', {foo: 'moor', bar: 'fear'}) ).resolves.toHaveProperty("foo", "moor");
+    test('Create record with multiple columns using object notation', function() {
+         return  expect( db.create('test', {foo: 'moor', bar: 'fear'}) ).resolves.toHaveProperty("foo", "moor");
     });
+    test('Create record with multiple columns and columns are inconsistent', function() {
+        db.debug(true);
+        let orders = [
+            { _id: 123, status: 'pending', email: 'email@sampleuser.com', subtotal: 5000, total: 10000, start_time: '2020-12-29T21:24:25.916Z', end_time: '2020-12-29T21:24:25.916Z', vat: 5 },
+            { _id: 456, status: 'pending', email: 'email@sampleuser.com', subtotal: 5000, total: 10000, start_time: '2020-12-29T21:24:25.916Z', end_time: '2020-12-29T21:24:25.916Z', vat: 5 },
+            { _id: 789, status: 'pending', email: 'email@sampleuser.com', subtotal: 5000, total: 10000, start_time: '2020-12-29T21:24:25.916Z', end_time: '2020-12-29T21:24:25.916Z', vat: 5 }
+        ]
+
+        return expect( db.create('orders', orders) ).resolves.toEqual(orders);
+    });
+
     test('Create record with json object columns', function() {
         return expect( db.create('test_jsonb', {foo: {moon: 'moor', pie: 'boon'}, bar: 'fear'}) ).resolves.toEqual(
             expect.objectContaining( {foo: {moon: 'moor', pie: 'boon'}, bar: 'fear'})

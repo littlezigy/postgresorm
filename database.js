@@ -22,7 +22,6 @@ module.exports = {
         pool = new Pool(db);
     },
     debug: (debugStatements = true) => {
-        console.log('SETTING DEBUG', debugStatements);
         todebug = debugStatements;
     },
     close: () => {
@@ -241,7 +240,6 @@ module.exports = {
 
         try{
             let cols = columns.join(', ');
-
     
             let values_str = "";
             let bindParams = [];
@@ -278,8 +276,6 @@ module.exports = {
 
             let res = (cb) ? await cb.query(querytext, bindParams) : await pool.query(querytext, bindParams);
             if(data1.length > 1 && typeof data1[0] == 'object'  ) {
-                console.log('DATA 1 ', data1, 'LENGTH GREATER THAN 1', data1.length);
-                console.log('RETURINING ALL ', res.rows);
                 return res.rows;
             }
             else
