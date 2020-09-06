@@ -22,6 +22,7 @@ module.exports = {
         pool = new Pool(db);
     },
     debug: (debugStatements = true) => {
+        console.log('SETTING DEBUG', debugStatements);
         todebug = debugStatements;
     },
     close: () => {
@@ -223,35 +224,71 @@ module.exports = {
                 throw Error;
             }
         } else if(data2 === null) {
-            columns = resolverequest(data1).columns;
-            values = resolverequest(data1).values;
+            if( !Array.isArray(data1) ) 
+                data1 = [ data1 ];
+
+            columns = [];
+            values = [];
+            columns = [ resolverequest(data1[0]).columns ];
+            data1.forEach(request => {
+                values.push(resolverequest(request).values);
+            });
+
         } else {
             columns = data1;
-            values = data2;
+            values = [ data2 ];
         }
 
         try{
-          let cols = columns.join(', ');
+            let cols = columns.join(', ');
+
     
-          let values_str = "";
-          for(i=1; i<=values.length; i++) {
-            if(i == values.length) values_str+= `$${i}`;
-            else values_str += `$${i}, `;
-          }
-          
-          querytext = `INSERT INTO ${table} (${cols}) VALUES(${values_str}) RETURNING *;`;
+            let values_str = "";
+            let bindParams = [];
+            let j = 1;
+            let counter = 0;
 
-          if(todebug === true) {
-              console.debug("Querytext", querytext);
-              if(values) console.debug('With Params', values);
-          }
+            values.forEach(valGroup => {
+                if(counter > 0) values_str += ', ';
+                values_str += '(';
 
-          let res = (cb) ? await cb.query(querytext, values) : await pool.query(querytext, values);
-          return res.rows[0];
+                for(let i = 0; i < valGroup.length; i++) {
+                    if(i > 0)
+                        values_str += ', ';
+
+                    if(typeof valGroup[i] === 'object' && valGroup[i] != null) {
+                        values_str += "'" + JSON.stringify(valGroup[i]) + "'";
+                    } else {
+                        bindParams.push(valGroup[i]);
+                        values_str += `$${j}`;
+                        j++;
+                    }
+                }
+
+                values_str += ')';
+                counter ++;
+            });
+
+            querytext = `INSERT INTO ${table} (${cols}) VALUES ${values_str} RETURNING *;`;
+
+            if(todebug === true) {
+                console.debug("Querytext", querytext);
+                if(values) console.debug('With Params', values);
+            }
+
+            let res = (cb) ? await cb.query(querytext, bindParams) : await pool.query(querytext, bindParams);
+            if(data1.length > 1 && typeof data1[0] == 'object'  ) {
+                console.log('DATA 1 ', data1, 'LENGTH GREATER THAN 1', data1.length);
+                console.log('RETURINING ALL ', res.rows);
+                return res.rows;
+            }
+            else
+                return res.rows[0];
+
         } catch(err) {
-          console.debug('QUERY TEXT', querytext);
-          console.debug('With Params', values);
-          throw err;
+            console.debug('QUERY TEXT', querytext);
+            console.debug('With Params', values);
+            throw err;
         }
     },
 
@@ -335,7 +372,7 @@ module.exports = {
 
             return res;
         } catch(e) {
-            console.debug('QUERY TEXT', text);
+            console.debug('QUERY (CUSTOM) FAILED', text);
             if(params) console.debug('WITH PARAMS', params);
             throw e;
         }
