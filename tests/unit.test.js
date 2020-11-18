@@ -1,14 +1,13 @@
-let { Pool } = require('pg');
-let query = jest.spyOn(Pool.prototype, 'query');
-const db = require('../database');
+const pg = require('../database');
+let db;
 
 beforeAll( function() {
     console.log('EFORE ALL');
-    db.initializeDatabase({
+    pg.initializeDatabase({
         connectionString: `postgresql://${process.env.PGORM_USER}:${process.env.PGORM_PASSWORD}@${process.env.PGORM_HOST}:${process.env.PGORM_PORT}/pgorm_dev_db`
     });
 
-    db.debug(false);
+    //db = pg.db();
     let query = `
         CREATE TABLE test(
             _id serial primary key,
@@ -42,15 +41,18 @@ beforeAll( function() {
         );
 
     `;
-    return db.customquery('DROP TABLE IF EXISTS test, orders, test_jsonb, test1, test_with_id_column;')
+    return pg.pool.connect()
+    .then(client => {
+        db = pg.db(client)
+        return db.customquery('DROP TABLE IF EXISTS test, orders, test_jsonb, test1, test_with_id_column;')
+    })
     .then(() => db.customquery(query))
     .catch(e => {
         console.log('ERRORRROR', e);
-    });
+    })
 });
 
 beforeEach( function() {
-    console.log('WIPING TABLE');
     db.debug(false);
     let query = `
         INSERT INTO test(foo, bar) VALUES('findme', 'boo'), ('foop', 'bloop'), ('foop', 'bloop'), ('foop', 'bloop');
@@ -99,7 +101,6 @@ describe('Create Record in table', function() {
          return  expect( db.create('test', {foo: 'moor', bar: 'fear'}) ).resolves.toHaveProperty("foo", "moor");
     });
     test('Create record with multiple columns and columns are inconsistent', function() {
-        db.debug(true);
         let orders = [
             { _id: 123, status: 'pending', email: 'email@sampleuser.com', subtotal: 5000, total: 10000, start_time: '2020-12-29T21:24:25.916Z', end_time: '2020-12-29T21:24:25.916Z', vat: 5 },
             { _id: 456, status: 'pending', email: 'email@sampleuser.com', subtotal: 5000, total: 10000, start_time: '2020-12-29T21:24:25.916Z', end_time: '2020-12-29T21:24:25.916Z', vat: 5 },
@@ -118,10 +119,8 @@ describe('Create Record in table', function() {
 
 describe('Update Records', function() {
     test('Set one column', async function() {
-        db.debug(false);
         return db.findone('test', {foo: 'test update'})
         .then(async res => {
-            console.log('RESSSSS', res);
             await expect(
                 db.update('test', {foo: 'test update'}, {bar: 'Update Worked'})
             ).resolves.toEqual( expect.arrayContaining([
@@ -139,7 +138,6 @@ describe('Update Records', function() {
     test('Set multiple columns', function() {
         return db.findone('test', {foo: 'test update 3'})
         .then(async res => {
-            console.log('RESSS', res);
             await expect(
                 db.update('test', {foo: 'test update 3'}, {bar: 'Updating...', bum: 'Fixed'})
             ).resolves.toEqual( expect.arrayContaining([
@@ -156,7 +154,6 @@ describe('Update Records', function() {
 });
 
 describe('Finding Records', function() {
-    db.debug(false);
     test('Find one', async function() {
         let res = await db.findone ('test', {foo: 'findme'});
         expect(res).toHaveProperty('foo', 'findme');
@@ -185,13 +182,31 @@ describe('Finding Records', function() {
 });
 
 describe('Transactions', function() {
-    db.debug(false);
-    test('Create in two tables', async function() {
-        results = await db.transaction(async client => {
+    test('Transaction Error should result in none of the records persisting', function() {
+        return db.transaction(async client => {
+            let res = await db.create('test', {foo: 'link up 2', bar: 'fear'}, null, client);
+            let res1 = await db.create('test1', {boo: 'transaction', far: 'fear'}, null, client);
+
+            throw new Error('fail');
+        })
+        .catch(e => {})
+        .then(result => {
+            return expect(db.findall('test', {foo: ['link up']})).resolves.toHaveLength(0);
+        }).then(result => {
+            return  expect(db.findall('test1', {boo: ['transaction']})).resolves.toHaveLength(0);
+        });
+    });
+
+    test('Pass tx: Create in two tables', function() {
+        return db.transaction(async client => {
             let res = await db.create('test', {foo: 'link up', bar: 'fear'}, null, client);
             let res1 = await db.create('test1', {boo: 'transaction', far: 'fear'}, null, client);
+        })
+        .then(results => {
+            console.log('TX RESUJLT', results)
+            return expect(db.findall('test', {foo: ['link up']})).resolves.not.toHaveLength(0);
+        }).then(() => {
+            return expect(db.findall('test1', {boo: ['transaction']})).resolves.not.toHaveLength(0);
         });
-        await expect(db.findall('test', {foo: ['link up']})).resolves.not.toHaveLength(0);
-        await expect(db.findall('test1', {boo: ['transaction']})).resolves.not.toHaveLength(0);
     });
 });
