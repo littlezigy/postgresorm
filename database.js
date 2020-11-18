@@ -1,7 +1,5 @@
 const {Pool} = require("pg");
 
-
-
 let pool;
 let todebug = false;
 
@@ -10,8 +8,8 @@ const resolverequest = function(data) {
     let values = Object.values(data);
     return {columns, values}
 }
+
 module.exports = {
-    pool,
     initializeDatabase: (config) => {
         const db = {
             connectionString: config.connectionString,
@@ -21,7 +19,11 @@ module.exports = {
         }
 
         pool = new Pool(db);
+        module.exports.pool = pool;
     },
+
+    pool,
+
     debug: (debugStatements = true) => {
         todebug = debugStatements;
     },
