@@ -11,6 +11,7 @@ const resolverequest = function(data) {
     return {columns, values}
 }
 module.exports = {
+    pool,
     initializeDatabase: (config) => {
         const db = {
             connectionString: config.connectionString,
