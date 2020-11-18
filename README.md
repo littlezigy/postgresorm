@@ -34,7 +34,21 @@ initializeDatabase(configObject);` <br />
 
 ### ORM Commands
 To use in model file, import module first <br />
-`const db = require('postgresorm')`<br />
+```
+const pg = require('postgresorm')
+
+const db = pg.db()
+```
+
+OR
+
+```
+const pg = require('postgresorm')
+
+const client = await pg.pool.connect();
+
+const db = pg.db(client)
+```
 - db.create(`'table'`, `data`) - Creates a new record in `table`. Similar to the `INSERT` command<br />
   `'table'`: Name of table to create record in <br />
   `data`: Object of table values
