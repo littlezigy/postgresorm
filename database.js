@@ -35,6 +35,11 @@ module.exports = {
                 return pool.end();
             },
 
+            release: () => {
+                if(dbContext.release)
+                    return dbContext.release();
+            }
+
             /**
              * @params conditions - {condition1: 'boo', condition2: 'ans', intcondition: [">", 1]}
              */

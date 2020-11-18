@@ -49,6 +49,12 @@ const client = await pg.pool.connect();
 
 const db = pg.db(client)
 ```
+
+And after using the particular database context, release it back into the pool
+```
+await db.release();
+```
+
 - db.create(`'table'`, `data`) - Creates a new record in `table`. Similar to the `INSERT` command<br />
   `'table'`: Name of table to create record in <br />
   `data`: Object of table values
